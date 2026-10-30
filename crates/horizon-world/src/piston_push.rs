@@ -429,6 +429,28 @@ mod tests {
         );
     }
 
+    /// Primed TNT sitting on a slime block a piston is pushing up is inside
+    /// the bounce search area and is pushed (`moveCollidedEntities`).
+    #[test]
+    fn primed_tnt_on_slime_is_caught_by_an_upward_piston() {
+        let piston = moving(Direction::Up, true, 0.0);
+        let dest = BlockPos::new(0, 2, 0);
+        let visual = move_by_position_and_progress(dest, unit(), piston);
+        assert_eq!(visual.min_position(), Vec3::new(0.0, 1.0, 0.0));
+        let search = movement_search_area(visual, Direction::Up, 0.5);
+        let tnt = Aabb::new(Vec3::new(0.01, 2.0, 0.01), Vec3::new(0.99, 2.98, 0.99));
+        assert!(
+            search.intersects(tnt),
+            "primed TNT sitting on slime must be in the bounce search"
+        );
+        let amount = collided_amount(&[unit()], dest, piston, 0.5, Direction::Up, tnt);
+        assert!(
+            amount > 0.0,
+            "primed TNT sitting on slime must be pushed, got {amount}"
+        );
+        assert_eq!(bounce_velocity(Direction::Up, Vec3::ZERO).y, 1.0);
+    }
+
     /// The moved block sits along the piston's own direction, half a block short
     /// at mid-travel and in place once landed.
     #[test]
