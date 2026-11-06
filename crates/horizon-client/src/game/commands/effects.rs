@@ -216,10 +216,16 @@ impl Game<'_> {
                         && stack
                             .crafting_enchantments()
                             .iter()
-                            .all(|(other, _)| e.compatible(other, &id));
+                            .all(|(other, _)| other.as_ref() == id || e.compatible(other, &id));
                     if compatible {
                         if let Some(s) = self.inventory[self.selected].as_mut() {
-                            s.enchant(&id, level.max(0) as u32);
+                            let mut levels = s.crafting_enchantments().to_vec();
+                            horizon_client::item_data::set_level(
+                                &mut levels,
+                                &id,
+                                level.max(0) as u32,
+                            );
+                            s.set_crafting_enchantments(levels);
                         }
                         tracker.track(t, true);
                     } else if single {

@@ -1528,6 +1528,21 @@ mod tests {
         let book = ItemStack::new("minecraft:book", 1).transmute("minecraft:enchanted_book", 1);
         assert!(book.extra.is_none());
     }
+
+    #[test]
+    fn set_level_replaces_an_existing_enchantment() {
+        let mut levels = vec![(Arc::from("minecraft:wind_burst"), 3)];
+        set_level(&mut levels, "minecraft:wind_burst", 1);
+        assert_eq!(levels, [(Arc::from("minecraft:wind_burst"), 1)]);
+        let mut stack = ItemStack::new("minecraft:mace", 1);
+        stack.enchant("minecraft:wind_burst", 3);
+        stack.enchant("minecraft:wind_burst", 1);
+        assert_eq!(stack.enchantment_level("minecraft:wind_burst"), 3);
+        let mut crafting = stack.crafting_enchantments().to_vec();
+        set_level(&mut crafting, "minecraft:wind_burst", 1);
+        stack.set_crafting_enchantments(crafting);
+        assert_eq!(stack.enchantment_level("minecraft:wind_burst"), 1);
+    }
     #[test]
     fn command_components_decode_fireworks() {
         let tag = command_components(

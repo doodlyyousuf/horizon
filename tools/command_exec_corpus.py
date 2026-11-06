@@ -4760,6 +4760,18 @@ def decorated_pot_data(string_sherd=False):
 
 
 
+def enchant_lower_existing_level():
+    """`/enchant` replaces an existing level, including a lower one (#9593)."""
+    return [
+        *setup(
+            '/item replace entity @s weapon.mainhand with '
+            'minecraft:mace[minecraft:enchantments={wind_burst:3}]'),
+        cmd('/enchant @s minecraft:wind_burst 1'),
+        cmd('/data get entity @s SelectedItem.components."minecraft:enchantments"'),
+        *setup('/item replace entity @s weapon.mainhand with air'),
+    ]
+
+
 def mining_efficiency_9021():
     """Exercise Player.getDestroySpeed through actual block destroy progress."""
     probe = {'op': 'destroy_progress', 'pos': [8, 229, 9]}
@@ -5580,6 +5592,7 @@ def groups():
         ('named weather predicates', named_weather_predicates()),
         ('named smoke predicates', named_smoke_predicates()),
         ('mining_efficiency_9021', mining_efficiency_9021()),
+        ('enchant lower existing level', enchant_lower_existing_level()),
         ('structured item slots', structured_item_slots()),
         ('loaded potion clouds', loaded_clouds(cmd, setup)),
         ('server clock', server_clock()),
